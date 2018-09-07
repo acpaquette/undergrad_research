@@ -78,19 +78,17 @@ def __init__(time):
     streaming_api.filter(track=['car'])
 
 def check_time(tweet_time):
+    #print(tweet_time.minute)
+    #print(master_time.minute)
     #gets time of tweet when collected
-    ttime = tweet_time.minute
     #gets master time from tweepyTimer
-    mtime = master_time.minute
-    #print(ttime)
-    #print(mtime)
-    #compares master time against tweet time to see if time has past
-    if(mtime == ttime):
+    #compares master time against tweet time to see if time has past, change minute to hour, for hourly checks
+    if(master_time.minute == tweet_time.minute):
         return True
     return False
 
 def get_filename():
     #concatenates file name together for dynamic naming based on master time
-    name = 'output'
+    name = 'output_machine1_time'
     ext = '.csv'
     return name + str(master_time.minute) + ext
