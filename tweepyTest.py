@@ -4,16 +4,22 @@ import tweepy
 import csv
 import configparser
 import argparse
+import datetime
 
 class CustomStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
         # Don't have to print to terminal, but nice
-        print(status.author.screen_name, status.created_at, status.text.encode('utf-8'))
+        print(status.id, status.created_at, status.text.encode('utf-8'), status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count)
         # Writes to csv
-        with open('OutputStreaming.csv', 'a') as f:
+        with open(get_filename(), 'a') as f:
             writer = csv.writer(f)
-            writer.writerow([status.author.screen_name, status.created_at, status.text.encode('utf-8')])
+            writer.writerow([status.id, status.created_at, status.text.encode('utf-8'), status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count])
+
+        if(check_time(datetime.datetime.now())):
+            return True
+        else:
+            return False
 
     # If error, keep streaming
     def on_error(self, status_code):
@@ -26,6 +32,7 @@ class CustomStreamListener(tweepy.StreamListener):
         print('Timeout...', file = sys.stderr)
         # print >> sys.stderr, 'Timeout...'
         return True
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -46,7 +53,12 @@ def parse_config(config_file):
 
     return consumer_key, consumer_secret, access_key, access_secret
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
+def __init__(time):
+
+    global master_time
+    master_time = time
+
     #consumer key, consumer secret, access key, access secret.
     args  = parse_args()
 
@@ -57,11 +69,25 @@ if __name__ == "__main__":
     auth.set_access_token(access_key, access_secret)
 
     # Creation of output csv file
-    with open('OutputStreaming.csv', 'w', encoding="utf8") as f:
+    with open(get_filename(), 'w', encoding="utf8") as f:
         writer = csv.writer(f)
-        writer.writerow(['Author', 'Date', 'Text'])
+        writer.writerow(['TweetID', 'Timestamp', 'Tweet_Text_Content', 'UserID', 'User_Name', 'Country State City', 'Likes'])
 
     # Define streamingAPI
     streaming_api = tweepy.streaming.Stream(auth, CustomStreamListener())
     # Call streamingAPI, which is stuck in while loop, not sure how to end w/o ctrl+c
-    streaming_api.filter(track=['trump'])
+    streaming_api.filter(track=['car'])
+
+def check_time(tweet_time):
+    ttime = tweet_time.minute
+    mtime = master_time.minute
+    print(ttime)
+    print(mtime)
+    if(mtime == ttime):
+        return True
+    return False
+
+def get_filename():
+    name = 'output'
+    ext = '.csv'
+    return name + str(master_time.minute) + ext
