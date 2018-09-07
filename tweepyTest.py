@@ -16,9 +16,8 @@ class CustomStreamListener(tweepy.StreamListener):
             writer = csv.writer(f)
             writer.writerow([status.id, status.created_at, status.text.encode('utf-8'), status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count])
 
-        if(check_time(datetime.datetime.now())):
-            return True
-        else:
+        #if check_time returns false, exit tweet collection 'while' loop
+        if(check_time(datetime.datetime.now()) != True):
             return False
 
     # If error, keep streaming
@@ -79,15 +78,19 @@ def __init__(time):
     streaming_api.filter(track=['car'])
 
 def check_time(tweet_time):
+    #gets time of tweet when collected
     ttime = tweet_time.minute
+    #gets master time from tweepyTimer
     mtime = master_time.minute
-    print(ttime)
-    print(mtime)
+    #print(ttime)
+    #print(mtime)
+    #compares master time against tweet time to see if time has past
     if(mtime == ttime):
         return True
     return False
 
 def get_filename():
+    #concatenates file name together for dynamic naming based on master time
     name = 'output'
     ext = '.csv'
     return name + str(master_time.minute) + ext
