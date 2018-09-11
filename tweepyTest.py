@@ -50,7 +50,7 @@ class CustomStreamListener(tweepy.StreamListener):
     @staticmethod
     def combine_time_files(file, base_path):
         file_split = file.split('_')
-        composite_file = '{}_{}_{}_{}_composite.csv'.format(*file_split[0:4])
+        composite_file = '{}_{}_{}_{}_{}_composite.csv'.format(*file_split[0:5])
         os.system('cat ' + file + ' >> ' + composite_file)
         os.system('rm ' + file)
 
