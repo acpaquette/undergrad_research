@@ -37,7 +37,7 @@ class CustomStreamListener(tweepy.StreamListener):
         date = datetime.datetime.now()
         output_file = '{}/{}_{}_{}_{}_{}_{}'.format(base_path, str(date.year), \
                                                  str(date.month), str(date.day), \
-                                                 str(date.hour), str(date.min), output_file + '.csv')
+                                                 str(date.hour), str(date.minute), output_file + '.csv')
         print("Generating output:", output_file)
 
         # Creation of output csv file
@@ -170,7 +170,7 @@ def check_time(start_time, tweet_time):
     # has past, change minute to hour, for hourly checks
     if start_time.minute == tweet_time.minute:
         return True
-        
+
     print(start_time.minute, tweet_time.minute)
     return False
 
