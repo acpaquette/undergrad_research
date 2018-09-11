@@ -21,6 +21,8 @@ class CustomStreamListener(tweepy.StreamListener):
 
     # If error, keep streaming
     def on_error(self, status_code):
+        # TODO: Add write to some error file
+        print(self.output_file)
         print('Encountered error with status code:', status_code, file = sys.stderr)
         return True
 
@@ -67,6 +69,9 @@ def parse_config(config_file):
 
     access_secret : str
                     Access secret from the config file
+
+    keywords : list
+               List of keywords gathered from a string in config_file
     '''
     config = configparser.ConfigParser()
     config.read(config_file)
@@ -79,7 +84,9 @@ def parse_config(config_file):
 
     output_file = config['output']['output_file']
 
-    return consumer_key, consumer_secret, access_key, access_secret, output_file
+    keywords = config['keywords']['keywords'].split(',')
+
+    return consumer_key, consumer_secret, access_key, access_secret, output_file, keywords
 
 def generate_twitter_stream(config_file):
     '''
@@ -95,7 +102,7 @@ def generate_twitter_stream(config_file):
     streaming_api : object
                     Twitter streaming api object
     '''
-    consumer_key, consumer_secret, access_key, access_secret, output_file = parse_config(config_file)
+    consumer_key, consumer_secret, access_key, access_secret, output_file, keywords = parse_config(config_file)
 
     #use variables to access twitter
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -108,7 +115,7 @@ def generate_twitter_stream(config_file):
 
     # Define streamingAPI
     streaming_api = tweepy.streaming.Stream(auth, CustomStreamListener(output_file))
-    return streaming_api
+    return streaming_api, keywords
 
 def start_stream(config_file):
     '''
@@ -119,9 +126,12 @@ def start_stream(config_file):
     config_file : str
                   Path to a config file
     '''
-    streaming_api = generate_twitter_stream(config_file)
+    streaming_api, keywords = generate_twitter_stream(config_file)
     # Call streamingAPI, which is stuck in while loop, not sure how to end w/o ctrl+c
-    streaming_api.filter(track=['trump'])
+    try:
+        result = streaming_api.filter(track=keywords)
+    except Exception as e:
+        print("Stream Failed due to", e)
 
 if __name__ == "__main__":
     args = parse_args()
