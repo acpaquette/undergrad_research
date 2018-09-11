@@ -35,9 +35,9 @@ class CustomStreamListener(tweepy.StreamListener):
     @staticmethod
     def update_output_file(output_file, base_path):
         date = datetime.datetime.now()
-        output_file = '{}/{}_{}_{}_{}_{}'.format(base_path, str(date.year), \
+        output_file = '{}/{}_{}_{}_{}_{}_{}'.format(base_path, str(date.year), \
                                                  str(date.month), str(date.day), \
-                                                 str(date.hour), output_file + '.csv')
+                                                 str(date.hour), str(date.minute), output_file + '.csv')
         print("Generating output:", output_file)
 
         # Creation of output csv file
@@ -168,10 +168,10 @@ def check_time(start_time, tweet_time):
     # gets master time from tweepyTimer
     # compares master time against tweet time to see if time
     # has past, change minute to hour, for hourly checks
-    if start_time.hour == tweet_time.hour:
+    if start_time.minute == tweet_time.minute:
         return True
 
-    print(start_time.hour, tweet_time.hour)
+    print(start_time.minute, tweet_time.minute)
     return False
 
 def main():
