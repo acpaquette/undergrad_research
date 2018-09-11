@@ -168,11 +168,10 @@ def check_time(start_time, tweet_time):
     # gets master time from tweepyTimer
     # compares master time against tweet time to see if time
     # has past, change minute to hour, for hourly checks
-    print(start_time.minute, tweet_time.minute)
-
     if start_time.minute == tweet_time.minute:
         return True
-
+        
+    print(start_time.minute, tweet_time.minute)
     return False
 
 def main():
