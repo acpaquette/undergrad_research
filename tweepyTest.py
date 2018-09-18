@@ -17,12 +17,40 @@ class CustomStreamListener(tweepy.StreamListener):
         self.start_time = time
 
     def on_status(self, status):
+        full_text = ''
+        if 'extended_tweet' in status._json.keys():
+            full_text = status._json['extended_tweet']['full_text']
+            #print("Found extended:", status._json['extended_tweet'])
+        elif 'retweeted_status' in status._json.keys():
+            if 'extended_tweet' in status._json['retweeted_status'].keys():
+                full_text = status._json['retweeted_status']['extended_tweet']['full_text']
+                # print("Found retweet extended:", status._json['retweeted_status']['extended_tweet']['full_text'])
+        else:
+            full_text = status.text
+            #print("Extended not found:", status.text)
+
+        if 'place' in status._json.keys():
+            if 'full_name' in status._json['place'].keys():
+                print('its here')
+
+        '''
+        if 'coordinates' in status._json.keys():
+            print(status._json[coordinates])
+            if 'coordinates' in status._json['coordinates'].keys():
+                print(status.coordinates.coordinates)
+        '''
+
         # Don't have to print to terminal, but nice
         # print(status.id, status.created_at, status.text.encode('utf-8'), status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count)
         # Writes to csv
         with open(self.output_file, 'a') as f:
             writer = csv.writer(f)
-            writer.writerow([status.id, status.created_at, status.text.encode('utf-8'), status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count])
+            writer.writerow([status.id, status.created_at, full_text, status.in_reply_to_user_id, status.user.id, status.user.name, status.user.screen_name])
+        # status.coordinates.coordinates,
+        # status.place.full_name,
+        # status.place.bounding_box['coordinates'],
+        # status.quoted_status_id
+
 
         # if check_time returns false, start a new collection file for the stream
         if check_time(self.start_time, datetime.datetime.now()) != True:
@@ -35,7 +63,7 @@ class CustomStreamListener(tweepy.StreamListener):
     @staticmethod
     def update_output_file(output_file, base_path):
         date = datetime.datetime.now()
-        output_file = '{}/{}_{}_{}_{}_{}'.format(base_path, str(date.year), \
+        output_file = '{}_{}_{}_{}_{}_{}'.format(base_path, str(date.year), \
                                                  str(date.month), str(date.day), \
                                                  str(date.hour), output_file + '.csv')
         print("Generating output:", output_file)
