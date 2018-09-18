@@ -18,11 +18,15 @@ class CustomStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
         # Don't have to print to terminal, but nice
-        # print(status.id, status.created_at, status.text.encode('utf-8'), status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count)
+        text = status.text
+        text = " ".join(text.split())
+        text = text.replace('\'', '')
+        text = text.replace('\"', '')
+        text = text.encode('utf-8')
         # Writes to csv
-        with open(self.output_file, 'a') as f:
+        with open(self.output_file, 'a', encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow([status.id, status.created_at, status.text.encode('utf-8'), status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count])
+            writer.writerow([status.id, status.created_at, text, status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count])
 
         # if check_time returns false, start a new collection file for the stream
         if check_time(self.start_time, datetime.datetime.now()) != True:
@@ -41,7 +45,7 @@ class CustomStreamListener(tweepy.StreamListener):
         print("Generating output:", output_file)
 
         # Creation of output csv file
-        with open(output_file, 'w', encoding="utf8") as f:
+        with open(output_file, 'w', encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(['TweetID', 'Timestamp', 'Tweet_Text_Content', 'UserID', 'User_Name', 'Country State City', 'Likes'])
 
