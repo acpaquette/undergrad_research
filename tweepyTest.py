@@ -18,6 +18,17 @@ class CustomStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
         full_text = ''
+        full_name = ''
+        coordinates = ''
+        bounding_box = []
+        quoted_status_id = 0
+        retweeted_status = []
+        hashtag = []
+        urls = []
+        user_mentions = []
+        media = []
+
+
         if 'extended_tweet' in status._json.keys():
             full_text = status._json['extended_tweet']['full_text']
             #print("Found extended:", status._json['extended_tweet'])
@@ -29,27 +40,42 @@ class CustomStreamListener(tweepy.StreamListener):
             full_text = status.text
             #print("Extended not found:", status.text)
 
-        if 'place' in status._json.keys():
-            if 'full_name' in status._json['place'].keys():
-                print('its here')
+        if 'coordinates' in status._json.keys() and status._json['coordinates'] != None:
+            coordinates = status._json['coordinates']['coordinates']
 
-        '''
-        if 'coordinates' in status._json.keys():
-            print(status._json[coordinates])
-            if 'coordinates' in status._json['coordinates'].keys():
-                print(status.coordinates.coordinates)
-        '''
+        if 'place' in status._json.keys() and status._json['place'] != None:
+            full_name = status._json['place']['full_name']
+
+        if 'place' in status._json.keys() and status._json['place'] != None:
+            bounding_box = status._json['place']['bounding_box']['coordinates']
+
+        if 'quoted_status_id' in status._json.keys() and status._json['quoted_status_id'] != None:
+            quoted_status_id = status.quoted_status_id
+
+        # Retweeted_Status is all information on retweeted tweet. Big FILE
+        if 'retweeted_status' in status._json.keys() and status._json['retweeted_status'] != None:
+            retweeted_status = status.retweeted_status.id
+            #print('RETWEETED STATUS HERE: ',status.retweeted_status.id, '\n')
+
+        if 'entities' in status._json.keys() and status._json['entities']['hashtags'] != None:
+            hashtag = status._json['entities']['hashtags']
+
+        if 'entities' in status._json.keys() and status._json['entities']['urls'] != None:
+            urls = status._json['entities']['urls']
+
+        if 'entities' in status._json.keys() and status._json['entities']['user_mentions'] != None:
+            user_mentions = status._json['entities']['user_mentions']
+
+        if 'entities' in status._json.keys() and status._json['entities'] != None:
+            if 'media' in status._json['entities'].keys():
+                media = status._json['entities']['media']
 
         # Don't have to print to terminal, but nice
         # print(status.id, status.created_at, status.text.encode('utf-8'), status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count)
         # Writes to csv
-        with open(self.output_file, 'a') as f:
+        with open(self.output_file, 'a', encoding="utf8") as f:
             writer = csv.writer(f)
-            writer.writerow([status.id, status.created_at, full_text, status.in_reply_to_user_id, status.user.id, status.user.name, status.user.screen_name])
-        # status.coordinates.coordinates,
-        # status.place.full_name,
-        # status.place.bounding_box['coordinates'],
-        # status.quoted_status_id
+            writer.writerow([status.id, status.created_at, full_text, status.in_reply_to_user_id, status.user.id, status.user.name, status.user.screen_name, coordinates, full_name, bounding_box, quoted_status_id, retweeted_status, hashtag, urls, user_mentions, media, status.lang])
 
 
         # if check_time returns false, start a new collection file for the stream
@@ -71,7 +97,7 @@ class CustomStreamListener(tweepy.StreamListener):
         # Creation of output csv file
         with open(output_file, 'w', encoding="utf8") as f:
             writer = csv.writer(f)
-            writer.writerow(['TweetID', 'Timestamp', 'Tweet_Text_Content', 'UserID', 'User_Name', 'Country State City', 'Likes'])
+            writer.writerow(['TweetID', 'Timestamp', 'Full_Text', 'In_Reply_To_User_ID', 'User_ID', 'User_Name', 'User_Screen_Name', 'Coordinates', 'Place', 'Bounding_Box', 'Quoted_Status_ID', 'Retweeted_Status', 'Hashtags', 'URLs', 'User_Mentions', 'Media', 'Language'])
 
         return output_file
 
