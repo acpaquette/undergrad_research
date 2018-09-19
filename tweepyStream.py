@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
+import re
 import tweepy
 import csv
 import configparser
@@ -69,7 +70,7 @@ class CustomStreamListener(tweepy.StreamListener):
         # Clean the response text
         full_text = " ".join(full_text.split())
         full_text = re.sub(r'[\'\"]', '', full_text)
-        full_text = text.encode('utf-8')
+        full_text = full_text.encode('utf-8')
         # Writes to csv
         with open(self.output_file, 'a', encoding="utf8") as f:
             writer = csv.writer(f)
