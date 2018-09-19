@@ -67,7 +67,7 @@ class CustomStreamListener(tweepy.StreamListener):
                 media = status._json['entities']['media']
 
         # Clean the response text
-        full_text = " ".join(text.split())
+        full_text = " ".join(full_text.split())
         full_text = re.sub(r'[\'\"]', '', full_text)
         full_text = text.encode('utf-8')
         # Writes to csv
