@@ -66,12 +66,19 @@ class CustomStreamListener(tweepy.StreamListener):
             if 'media' in status._json['entities'].keys():
                 media = status._json['entities']['media']
 
-        # Don't have to print to terminal, but nice
-        # print(status.id, status.created_at, status.text.encode('utf-8'), status.user.id, status.user.screen_name, status.user.location, status.user.favourites_count)
+        # Clean the response text
+        full_text = " ".join(text.split())
+        full_text = re.sub(r'[\'\"]', '', full_text)
+        full_text = text.encode('utf-8')
         # Writes to csv
         with open(self.output_file, 'a', encoding="utf8") as f:
             writer = csv.writer(f)
-            writer.writerow([status.id, status.created_at, full_text, status.in_reply_to_user_id, status.user.id, status.user.name, status.user.screen_name, coordinates, full_name, bounding_box, quoted_status_id, retweeted_status, hashtag, urls, user_mentions, media, status.lang])
+            writer.writerow([status.id, status.created_at, full_text, \
+                             status.in_reply_to_user_id, status.user.id, \
+                             status.user.name, status.user.screen_name, \
+                             coordinates, full_name, bounding_box, \
+                             quoted_status_id, retweeted_status, hashtag, urls, \
+                             user_mentions, media, status.lang])
 
 
         # if check_time returns false, start a new collection file for the stream
@@ -91,7 +98,7 @@ class CustomStreamListener(tweepy.StreamListener):
         print("Generating output:", output_file)
 
         # Creation of output csv file
-        with open(output_file, 'w', encoding="utf8") as f:
+        with open(output_file, 'w', encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(['TweetID', 'Timestamp', 'Full_Text', 'In_Reply_To_User_ID', 'User_ID', 'User_Name', 'User_Screen_Name', 'Coordinates', 'Place', 'Bounding_Box', 'Quoted_Status_ID', 'Retweeted_Status', 'Hashtags', 'URLs', 'User_Mentions', 'Media', 'Language'])
 
