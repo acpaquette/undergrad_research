@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
+import re
 import tweepy
 import csv
 import configparser
@@ -67,9 +68,9 @@ class CustomStreamListener(tweepy.StreamListener):
                 media = status._json['entities']['media']
 
         # Clean the response text
-        full_text = " ".join(text.split())
+        full_text = " ".join(full_text.split())
         full_text = re.sub(r'[\'\"]', '', full_text)
-        full_text = text.encode('utf-8')
+        full_text = full_text.encode('utf-8')
         # Writes to csv
         with open(self.output_file, 'a', encoding="utf8") as f:
             writer = csv.writer(f)
@@ -92,7 +93,7 @@ class CustomStreamListener(tweepy.StreamListener):
     @staticmethod
     def update_output_file(output_file, base_path):
         date = datetime.datetime.now()
-        output_file = '{}_{}_{}_{}_{}_{}'.format(base_path, str(date.year), \
+        output_file = '{}/{}_{}_{}_{}_{}'.format(base_path, str(date.year), \
                                                  str(date.month), str(date.day), \
                                                  str(date.hour), output_file + '.csv')
         print("Generating output:", output_file)

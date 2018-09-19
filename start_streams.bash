@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONFIG_ARRAY=("stream_config_1.ini" "stream_config_2.ini")
+declare -a CONFIG_ARRAY=("stream_config_1.ini" "stream_config_2.ini")
 
 # $1 is the bash profile to source
 source $1
@@ -8,8 +8,9 @@ source $1
 # $2 is the anaconda environment to activate
 source activate $2
 
-for i in $CONFIG_ARRAY; do
-  OUTPUT="$(pgrep python ./tweepyStream.py $i)"
+for i in "${CONFIG_ARRAY[@]}"
+do
+  OUTPUT="$(pgrep -f "python ./tweepyStream.py $i")"
   if [[ $OUTPUT ]];
   then
     echo $i Running
