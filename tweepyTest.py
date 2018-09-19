@@ -31,14 +31,11 @@ class CustomStreamListener(tweepy.StreamListener):
 
         if 'extended_tweet' in status._json.keys():
             full_text = status._json['extended_tweet']['full_text']
-            #print("Found extended:", status._json['extended_tweet'])
         elif 'retweeted_status' in status._json.keys():
             if 'extended_tweet' in status._json['retweeted_status'].keys():
                 full_text = status._json['retweeted_status']['extended_tweet']['full_text']
-                # print("Found retweet extended:", status._json['retweeted_status']['extended_tweet']['full_text'])
         else:
             full_text = status.text
-            #print("Extended not found:", status.text)
 
         if 'coordinates' in status._json.keys() and status._json['coordinates'] != None:
             coordinates = status._json['coordinates']['coordinates']
@@ -52,10 +49,9 @@ class CustomStreamListener(tweepy.StreamListener):
         if 'quoted_status_id' in status._json.keys() and status._json['quoted_status_id'] != None:
             quoted_status_id = status.quoted_status_id
 
-        # Retweeted_Status is all information on retweeted tweet. Big FILE
+        # Retweeted_Status is all information on retweeted tweet. Results in Big OUTPUTFILE.
         if 'retweeted_status' in status._json.keys() and status._json['retweeted_status'] != None:
             retweeted_status = status.retweeted_status.id
-            #print('RETWEETED STATUS HERE: ',status.retweeted_status.id, '\n')
 
         if 'entities' in status._json.keys() and status._json['entities']['hashtags'] != None:
             hashtag = status._json['entities']['hashtags']
