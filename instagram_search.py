@@ -2,6 +2,7 @@
 import json
 import logging as log
 import re
+import os
 import sys
 from abc import ABCMeta, abstractmethod
 from json import JSONDecodeError
@@ -11,11 +12,6 @@ import requests
 import csv
 import argparse
 import datetime
-
-date = datetime.datetime.now()
-output_file_name = '{}_{}_{}_{}_{}{}'.format('instagram', str(date.year), \
-                                         str(date.month), str(date.day), \
-                                         str(date.minute), '.csv')
 
 class InstagramUser:
     def __init__(self, user_id, username=None, bio=None, followers_count=None, following_count=None, is_private=False):
@@ -120,7 +116,7 @@ class HashTagSearch(metaclass=ABCMeta):
 
         # figure out valid queryId
         success = False
-        print(potential_query_ids)
+        # print(potential_query_ids)
         for potential_id in potential_query_ids:
             variables = {
                 'tag_name': tag,
@@ -219,7 +215,7 @@ class HashTagSearch(metaclass=ABCMeta):
                 if "queryId" in text:
                     for query_id in re.findall("(?<=queryId:\")[0-9A-Za-z]+", text):
                         query_ids.append(query_id)
-        print(query_ids)
+        # print(query_ids)
         return query_ids
 
     @abstractmethod
@@ -228,20 +224,21 @@ class HashTagSearch(metaclass=ABCMeta):
         Implement yourself to work out what to do with each extract batch of posts
         :param instagram_results: A list of Instagram Posts
         """
-        print(instagram_results)
+        # print(instagram_results)
 
 class HashTagSearchExample(HashTagSearch):
-    def __init__(self):
+    def __init__(self, output_file_name):
         super().__init__()
         self.total_posts = 0
+        self.file_name = output_file_name
 
     def save_results(self, instagram_results):
         super().save_results(instagram_results)
         for i, post in enumerate(instagram_results):
             self.total_posts += 1
-            print('\n\n\n\n')
-            print("%s\t%s\t%s\t%s\t%s\t%s" % (post.post_id, post.created_at, post.user.username, post.user.id, post.processed_text(), post.hashtags()))
-            with open(output_file_name, 'a', encoding="utf8") as f:
+            # print('\n\n\n\n')
+            # print("%s\t%s\t%s\t%s\t%s\t%s" % (post.post_id, post.created_at, post.user.username, post.user.id, post.processed_text(), post.hashtags()))
+            with open(self.file_name, 'a', encoding="utf8") as f:
                 writer = csv.writer(f)
                 writer.writerow([post.post_id, post.created_at, post.user.username, post.user.id, post.processed_text(), post.hashtags()])
 
@@ -257,20 +254,32 @@ def parse_args():
     '''
     parser = argparse.ArgumentParser(description='Process some integers.')
 
-    parser.add_argument('config_file', type=str, help='bash file to setup the instagram stream.')
+    parser.add_argument('keyword', type=str, help='bash file to setup the instagram stream.')
+    parser.add_argument('path', type=str, help='bash file to setup the instagram stream.')
     args = parser.parse_args()
     return args
 
 def main():
+    args = parse_args()
     log.basicConfig(level=log.INFO)
+    keyword = args.keyword
+    path = args.path
 
-    with open(output_file_name, 'w', encoding="utf8") as f:
+    date = datetime.datetime.now()
+
+
+    output_file_name = '{}_{}_{}_{}_{}{}'.format(str(date.year), \
+                                             str(date.month), str(date.day), \
+                                             str(date.minute), keyword, '_instagram.csv')
+
+    output_file = os.path.join(path, output_file_name)
+    with open(output_file, 'w', encoding="utf8") as f:
         writer = csv.writer(f)
         writer.writerow(['Post_ID', 'Timestamp', 'Username', 'User_ID', 'Text', 'Hashtags'])
 
     args  = parse_args()
 
-    HashTagSearchExample().extract_recent_tag(args.config_file)
+    HashTagSearchExample(output_file_name).extract_recent_tag(args.keyword)
 
 
 if __name__ == '__main__':
