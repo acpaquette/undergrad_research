@@ -9,7 +9,13 @@ from json import JSONDecodeError
 import bs4
 import requests
 import csv
+import argparse
+import datetime
 
+date = datetime.datetime.now()
+output_file_name = '{}_{}_{}_{}_{}{}'.format('instagram', str(date.year), \
+                                         str(date.month), str(date.day), \
+                                         str(date.minute), '.csv')
 
 class InstagramUser:
     def __init__(self, user_id, username=None, bio=None, followers_count=None, following_count=None, is_private=False):
@@ -235,17 +241,37 @@ class HashTagSearchExample(HashTagSearch):
             self.total_posts += 1
             print('\n\n\n\n')
             print("%s\t%s\t%s\t%s\t%s\t%s" % (post.post_id, post.created_at, post.user.username, post.user.id, post.processed_text(), post.hashtags()))
-            with open('instagram_output.csv', 'a', encoding="utf8") as f:
+            with open(output_file_name, 'a', encoding="utf8") as f:
                 writer = csv.writer(f)
                 writer.writerow([post.post_id, post.created_at, post.user.username, post.user.id, post.processed_text(), post.hashtags()])
 
+def parse_args():
+    '''
+    Parses the command line arguments for the script
 
+    Returns
+    -------
 
-if __name__ == '__main__':
+    args : object
+           Python arg parser object
+    '''
+    parser = argparse.ArgumentParser(description='Process some integers.')
+
+    parser.add_argument('config_file', type=str, help='bash file to setup the instagram stream.')
+    args = parser.parse_args()
+    return args
+
+def main():
     log.basicConfig(level=log.INFO)
 
-    with open('instagram_output.csv', 'w', encoding="utf8") as f:
+    with open(output_file_name, 'w', encoding="utf8") as f:
         writer = csv.writer(f)
         writer.writerow(['Post_ID', 'Timestamp', 'Username', 'User_ID', 'Text', 'Hashtags'])
 
-    HashTagSearchExample().extract_recent_tag('Trump')
+    args  = parse_args()
+
+    HashTagSearchExample().extract_recent_tag(args.config_file)
+
+
+if __name__ == '__main__':
+    main()
