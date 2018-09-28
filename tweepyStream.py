@@ -84,7 +84,6 @@ class CustomStreamListener(tweepy.StreamListener):
 
         # if check_time returns false, start a new collection file for the stream
         if check_time(self.start_time, datetime.datetime.now()) != True:
-            CustomStreamListener.combine_time_files(self.output_file, self.base_path)
             self.start_time = datetime.datetime.now()
             self.output_file = self.update_output_file(self.default_output, self.base_path)
 
@@ -104,13 +103,6 @@ class CustomStreamListener(tweepy.StreamListener):
             writer.writerow(['TweetID', 'Timestamp', 'Full_Text', 'In_Reply_To_User_ID', 'User_ID', 'User_Name', 'User_Screen_Name', 'Coordinates', 'Place', 'Bounding_Box', 'Quoted_Status_ID', 'Retweeted_Status', 'Hashtags', 'URLs', 'User_Mentions', 'Media', 'Language'])
 
         return output_file
-
-    @staticmethod
-    def combine_time_files(file, base_path):
-        file_split = file.split('_')
-        composite_file = '{}_{}_{}_{}_composite.csv'.format(*file_split[0:4])
-        os.system('cat ' + file + ' >> ' + composite_file)
-        os.system('rm ' + file)
 
     # If error, keep streaming
     def on_error(self, status_code):
