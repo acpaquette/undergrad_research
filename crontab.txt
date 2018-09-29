@@ -2,4 +2,4 @@ SHELL=/bin/bash
 BASH_ENV="/User/adampaquette/.bash_profile"
 
 */5 * * * * cd /Users/adampaquette/repos/undergrad_research && ./script.bash /Users/adampaquette/.bash_profile undergrad >> /tmp/logfile.log 2>&1
-5 */1 * * * paste -d, $(date '+%Y_%m_%d_%H')_stream_* > $(ls *_stream_1* | awk '{print substr($0,0,14)}')composite.csv && rm $(ls *_stream_1* | awk '{print substr($0,0,14)}')stream*
+5 */1 * * * paste -d, $(date -v -1H '\+\%Y_\%m_\%d_\%H')_stream_* > $(ls *_stream_1* | awk '{print substr($0,0,14)}')composite.csv && rm $(ls *_stream_1* | awk '{print substr($0,0,14)}')stream*
