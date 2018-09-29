@@ -92,9 +92,7 @@ class CustomStreamListener(tweepy.StreamListener):
     @staticmethod
     def update_output_file(output_file, base_path):
         date = datetime.datetime.now()
-        output_file = '{}/{}_{}_{}_{}_{}'.format(base_path, str(date.year), \
-                                                 str(date.month), str(date.day), \
-                                                 str(date.hour), output_file + '.csv')
+        output_file = '{}/{}_{}'.format(base_path, date.strftime('%Y_%m_%d_%H'), output_file + '.csv')
         print("Generating output:", output_file)
 
         # Creation of output csv file
