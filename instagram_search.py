@@ -137,7 +137,7 @@ class HashTagSearch(metaclass=ABCMeta):
                 pass
 
         if not success:
-            log.error("Error extracting Query Id, exiting")
+            # log.error("Error extracting Query Id, exiting")
             sys.exit(1)
 
 
