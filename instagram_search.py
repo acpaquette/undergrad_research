@@ -227,10 +227,10 @@ class HashTagSearch(metaclass=ABCMeta):
         # print(instagram_results)
 
 class HashTagSearchExample(HashTagSearch):
-    def __init__(self, output_file_name):
+    def __init__(self, output_file):
         super().__init__()
         self.total_posts = 0
-        self.file_name = output_file_name
+        self.file_name = output_file
 
     def save_results(self, instagram_results):
         super().save_results(instagram_results)
@@ -240,7 +240,7 @@ class HashTagSearchExample(HashTagSearch):
             # print("%s\t%s\t%s\t%s\t%s\t%s" % (post.post_id, post.created_at, post.user.username, post.user.id, post.processed_text(), post.hashtags()))
             with open(self.file_name, 'a', encoding="utf8") as f:
                 writer = csv.writer(f)
-                writer.writerow([post.post_id, post.created_at, post.user.username, post.user.id, post.processed_text(), post.hashtags()])
+                writer.writerow([post.post_id, post.created_at, post.user.id, post.processed_text(), post.hashtags()])
 
 def parse_args():
     '''
@@ -275,11 +275,11 @@ def main():
     output_file = os.path.join(path, output_file_name)
     with open(output_file, 'w', encoding="utf8") as f:
         writer = csv.writer(f)
-        writer.writerow(['Post_ID', 'Timestamp', 'Username', 'User_ID', 'Text', 'Hashtags'])
+        writer.writerow(['Post_ID', 'Timestamp', 'User_ID', 'Text', 'Hashtags'])
 
     args  = parse_args()
 
-    HashTagSearchExample(output_file_name).extract_recent_tag(args.keyword)
+    HashTagSearchExample(output_file).extract_recent_tag(args.keyword)
 
 
 if __name__ == '__main__':
