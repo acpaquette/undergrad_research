@@ -268,9 +268,9 @@ def main():
     date = datetime.datetime.now()
 
 
-    output_file_name = '{}_{}_{}_{}_{}{}'.format(str(date.year), \
-                                             str(date.month), str(date.day), \
-                                             str(date.minute), keyword, '_instagram.csv')
+    output_file_name = '{}_{}_{}_{}_{}_{}{}'.format(str(date.year), str(date.month),\
+                                              str(date.day), str(date.hour),\
+                                              str(date.minute), keyword, '_instagram.csv')
 
     output_file = os.path.join(path, output_file_name)
     with open(output_file, 'w', encoding="utf8") as f:
