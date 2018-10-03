@@ -278,8 +278,10 @@ def main():
         writer.writerow(['Post_ID', 'Timestamp', 'User_ID', 'Text', 'Hashtags'])
 
     args  = parse_args()
-
-    HashTagSearchExample(output_file).extract_recent_tag(args.keyword)
+    try:
+        HashTagSearchExample(output_file).extract_recent_tag(args.keyword)
+    except TypeError as de:
+        pass
 
 
 if __name__ == '__main__':
