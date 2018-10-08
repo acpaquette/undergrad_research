@@ -240,7 +240,7 @@ class HashTagSearchExample(HashTagSearch):
             # print("%s\t%s\t%s\t%s\t%s\t%s" % (post.post_id, post.created_at, post.user.username, post.user.id, post.processed_text(), post.hashtags()))
             with open(self.file_name, 'a', encoding="utf8") as f:
                 writer = csv.writer(f)
-                writer.writerow([post.post_id, post.created_at, post.user.id, post.processed_text(), post.hashtags()])
+                writer.writerow([post.post_id, post.created_at, post.user.id, post.processed_text(), post.hashtags(), post.display_src])
 
 def parse_args():
     '''
@@ -260,25 +260,25 @@ def parse_args():
     return args
 
 def main():
-    args = parse_args()
-    log.basicConfig(level=log.INFO)
-    keyword = args.keyword
-    path = args.path
-
-    date = datetime.datetime.now()
-
-
-    output_file_name = '{}_{}_{}_{}_{}_{}{}'.format(str(date.year), str(date.month),\
-                                              str(date.day), str(date.hour),\
-                                              str(date.minute), keyword, '_instagram.csv')
-
-    output_file = os.path.join(path, output_file_name)
-    with open(output_file, 'w', encoding="utf8") as f:
-        writer = csv.writer(f)
-        writer.writerow(['Post_ID', 'Timestamp', 'User_ID', 'Text', 'Hashtags'])
-
-    args  = parse_args()
     try:
+        args = parse_args()
+        log.basicConfig(level=log.INFO)
+        keyword = args.keyword
+        path = args.path
+
+        date = datetime.datetime.now()
+
+
+        output_file_name = '{}_{}_{}_{}_{}_{}{}'.format(str(date.year), str(date.month),\
+                                                  str(date.day), str(date.hour),\
+                                                  str(date.minute), keyword, '_instagram.csv')
+
+        output_file = os.path.join(path, output_file_name)
+        with open(output_file, 'w', encoding="utf8") as f:
+            writer = csv.writer(f)
+            writer.writerow(['Post_ID', 'Timestamp', 'User_ID', 'Text', 'Hashtags', 'URL'])
+
+        args  = parse_args()
         HashTagSearchExample(output_file).extract_recent_tag(args.keyword)
     except TypeError as de:
         pass
