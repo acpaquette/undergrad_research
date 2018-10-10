@@ -168,8 +168,12 @@ def parse_config(config_file):
     output_file = config['output']['output_file']
 
     keywords = config['keywords']['keywords'].split(',')
+    try:
+        follows = config['usernames']['usernames'].split(',')
+    except:
+        follows = []
 
-    return consumer_key, consumer_secret, access_key, access_secret, output_file, keywords
+    return consumer_key, consumer_secret, access_key, access_secret, output_file, keywords, usernames
 
 def generate_twitter_stream(config_file, start_time):
     '''
@@ -185,7 +189,8 @@ def generate_twitter_stream(config_file, start_time):
     streaming_api : object
                     Twitter streaming api object
     '''
-    consumer_key, consumer_secret, access_key, access_secret, output_file, keywords = parse_config(config_file)
+    consumer_key, consumer_secret, access_key, access_secret,
+    output_file, keywords, usernames = parse_config(config_file)
 
     #use variables to access twitter
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -193,7 +198,7 @@ def generate_twitter_stream(config_file, start_time):
 
     # Define streamingAPI
     streaming_api = tweepy.streaming.Stream(auth, CustomStreamListener(output_file, start_time))
-    return streaming_api, keywords
+    return streaming_api, keywords, usernames
 
 def start_stream(config_file, start_time):
     '''
@@ -204,9 +209,9 @@ def start_stream(config_file, start_time):
     config_file : str
                   Path to a config file
     '''
-    streaming_api, keywords = generate_twitter_stream(config_file, start_time)
+    streaming_api, keywords , usernames= generate_twitter_stream(config_file, start_time)
     try:
-        result = streaming_api.filter(track=keywords)
+        result = streaming_api.filter(track = keywords, follow = usernames)
     except Exception as e:
         print("Stream Failed due to", e)
 
