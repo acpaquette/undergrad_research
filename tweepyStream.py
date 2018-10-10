@@ -29,7 +29,6 @@ class CustomStreamListener(tweepy.StreamListener):
         user_mentions = []
         media = []
 
-
         if 'extended_tweet' in status._json.keys():
             full_text = status._json['extended_tweet']['full_text']
         elif 'retweeted_status' in status._json.keys():
