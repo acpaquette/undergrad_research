@@ -169,9 +169,9 @@ def parse_config(config_file):
 
     keywords = config['keywords']['keywords'].split(',')
     try:
-        follows = config['usernames']['usernames'].split(',')
+        usernames = config['usernames']['usernames'].split(',')
     except:
-        follows = []
+        usernames = []
 
     return consumer_key, consumer_secret, access_key, access_secret, output_file, keywords, usernames
 
@@ -189,7 +189,7 @@ def generate_twitter_stream(config_file, start_time):
     streaming_api : object
                     Twitter streaming api object
     '''
-    consumer_key, consumer_secret, access_key, access_secret,
+    consumer_key, consumer_secret, access_key, access_secret,\
     output_file, keywords, usernames = parse_config(config_file)
 
     #use variables to access twitter
