@@ -243,8 +243,9 @@ class HashTagSearchExample(HashTagSearch):
                 writer.writerow([post.post_id, post.created_at, post.user.id, post.processed_text(), post.hashtags(), post.display_src])
 
             picture_request = requests.get(post.display_src)
+            tmp_image_name = self.image_name + str(i) + '.jpg'
             if picture_request.status_code == 200:
-                with open(self.image_name, 'wb') as f:
+                with open(tmp_image_name, 'wb') as f:
                     f.write(picture_request.content)
 
 def parse_args():
@@ -279,7 +280,7 @@ def main():
                                                   str(date.minute), keyword, '_instagram.csv')
         image_file_name = 'photos/{}_{}_{}_{}_{}_{}{}'.format(str(date.year), str(date.month),\
                                                   str(date.day), str(date.hour),\
-                                                  str(date.minute), keyword, '_instagram_photo.jpg')
+                                                  str(date.minute), keyword, '_instagram_photo')
 
         output_file = os.path.join(path, output_file_name)
         with open(output_file, 'w', encoding="utf8") as f:
