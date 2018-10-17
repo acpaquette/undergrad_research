@@ -1,0 +1,5 @@
+SHELL=/bin/bash
+BASH_ENV="/User/adampaquette/.bash_profile"
+
+*/5 * * * * cd /Users/adampaquette/repos/undergrad_research && ./script /Users/adampaquette/.bash_profile undergrad >> /tmp/logfile.log 2>&1
+5 */1 * * * cd /Users/adampaquette/repos/undergrad_research && ./combine_csv /Users/adampaquette/repos/output

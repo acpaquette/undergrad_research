@@ -29,7 +29,6 @@ class CustomStreamListener(tweepy.StreamListener):
         user_mentions = []
         media = []
 
-
         if 'extended_tweet' in status._json.keys():
             full_text = status._json['extended_tweet']['full_text']
         elif 'retweeted_status' in status._json.keys():
@@ -84,7 +83,6 @@ class CustomStreamListener(tweepy.StreamListener):
 
         # if check_time returns false, start a new collection file for the stream
         if check_time(self.start_time, datetime.datetime.now()) != True:
-            CustomStreamListener.combine_time_files(self.output_file, self.base_path)
             self.start_time = datetime.datetime.now()
             self.output_file = self.update_output_file(self.default_output, self.base_path)
 
@@ -93,9 +91,7 @@ class CustomStreamListener(tweepy.StreamListener):
     @staticmethod
     def update_output_file(output_file, base_path):
         date = datetime.datetime.now()
-        output_file = '{}/{}_{}_{}_{}_{}'.format(base_path, str(date.year), \
-                                                 str(date.month), str(date.day), \
-                                                 str(date.hour), output_file + '.csv')
+        output_file = '{}/{}_{}'.format(base_path, date.strftime('%Y_%m_%d_%H'), output_file + '.csv')
         print("Generating output:", output_file)
 
         # Creation of output csv file
@@ -104,13 +100,6 @@ class CustomStreamListener(tweepy.StreamListener):
             writer.writerow(['TweetID', 'Timestamp', 'Full_Text', 'In_Reply_To_User_ID', 'User_ID', 'User_Name', 'User_Screen_Name', 'Coordinates', 'Place', 'Bounding_Box', 'Quoted_Status_ID', 'Retweeted_Status', 'Hashtags', 'URLs', 'User_Mentions', 'Media', 'Language'])
 
         return output_file
-
-    @staticmethod
-    def combine_time_files(file, base_path):
-        file_split = file.split('_')
-        composite_file = '{}_{}_{}_{}_composite.csv'.format(*file_split[0:4])
-        os.system('cat ' + file + ' >> ' + composite_file)
-        os.system('rm ' + file)
 
     # If error, keep streaming
     def on_error(self, status_code):
@@ -179,8 +168,12 @@ def parse_config(config_file):
     output_file = config['output']['output_file']
 
     keywords = config['keywords']['keywords'].split(',')
+    try:
+        usernames = config['usernames']['usernames'].split(',')
+    except:
+        usernames = []
 
-    return consumer_key, consumer_secret, access_key, access_secret, output_file, keywords
+    return consumer_key, consumer_secret, access_key, access_secret, output_file, keywords, usernames
 
 def generate_twitter_stream(config_file, start_time):
     '''
@@ -196,7 +189,8 @@ def generate_twitter_stream(config_file, start_time):
     streaming_api : object
                     Twitter streaming api object
     '''
-    consumer_key, consumer_secret, access_key, access_secret, output_file, keywords = parse_config(config_file)
+    consumer_key, consumer_secret, access_key, access_secret,\
+    output_file, keywords, usernames = parse_config(config_file)
 
     #use variables to access twitter
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -204,7 +198,7 @@ def generate_twitter_stream(config_file, start_time):
 
     # Define streamingAPI
     streaming_api = tweepy.streaming.Stream(auth, CustomStreamListener(output_file, start_time))
-    return streaming_api, keywords
+    return streaming_api, keywords, usernames
 
 def start_stream(config_file, start_time):
     '''
@@ -215,9 +209,9 @@ def start_stream(config_file, start_time):
     config_file : str
                   Path to a config file
     '''
-    streaming_api, keywords = generate_twitter_stream(config_file, start_time)
+    streaming_api, keywords , usernames= generate_twitter_stream(config_file, start_time)
     try:
-        result = streaming_api.filter(track=keywords)
+        result = streaming_api.filter(track = keywords, follow = usernames)
     except Exception as e:
         print("Stream Failed due to", e)
 
