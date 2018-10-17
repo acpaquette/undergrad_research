@@ -12,6 +12,7 @@ import requests
 import csv
 import argparse
 import datetime
+import requests
 
 class InstagramUser:
     def __init__(self, user_id, username=None, bio=None, followers_count=None, following_count=None, is_private=False):
@@ -227,20 +228,24 @@ class HashTagSearch(metaclass=ABCMeta):
         # print(instagram_results)
 
 class HashTagSearchExample(HashTagSearch):
-    def __init__(self, output_file):
+    def __init__(self, output_file, image_file_name):
         super().__init__()
         self.total_posts = 0
         self.file_name = output_file
+        self.image_name = image_file_name
 
     def save_results(self, instagram_results):
         super().save_results(instagram_results)
         for i, post in enumerate(instagram_results):
             self.total_posts += 1
-            # print('\n\n\n\n')
-            # print("%s\t%s\t%s\t%s\t%s\t%s" % (post.post_id, post.created_at, post.user.username, post.user.id, post.processed_text(), post.hashtags()))
             with open(self.file_name, 'a', encoding="utf8") as f:
                 writer = csv.writer(f)
                 writer.writerow([post.post_id, post.created_at, post.user.id, post.processed_text(), post.hashtags(), post.display_src])
+
+            picture_request = requests.get(post.display_src)
+            if picture_request.status_code == 200:
+                with open(self.image_name, 'wb') as f:
+                    f.write(picture_request.content)
 
 def parse_args():
     '''
@@ -272,6 +277,9 @@ def main():
         output_file_name = '{}_{}_{}_{}_{}_{}{}'.format(str(date.year), str(date.month),\
                                                   str(date.day), str(date.hour),\
                                                   str(date.minute), keyword, '_instagram.csv')
+        image_file_name = 'photos/{}_{}_{}_{}_{}_{}{}'.format(str(date.year), str(date.month),\
+                                                  str(date.day), str(date.hour),\
+                                                  str(date.minute), keyword, '_instagram_photo.jpg')
 
         output_file = os.path.join(path, output_file_name)
         with open(output_file, 'w', encoding="utf8") as f:
@@ -279,7 +287,7 @@ def main():
             writer.writerow(['Post_ID', 'Timestamp', 'User_ID', 'Text', 'Hashtags', 'URL'])
 
         args  = parse_args()
-        HashTagSearchExample(output_file).extract_recent_tag(args.keyword)
+        HashTagSearchExample(output_file, image_file_name).extract_recent_tag(args.keyword)
     except TypeError as de:
         pass
 

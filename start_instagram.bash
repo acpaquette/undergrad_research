@@ -17,7 +17,6 @@ source activate $2
 
 DATE=`date '+%Y_%m_%d_%H_%M'`
 
-echo $DATE
 cd data/
 mkdir $DATE
 
@@ -25,5 +24,3 @@ mkdir $DATE
 for i in "${keyword[@]}"; do
   python3 /Users/daniel/Desktop/undergrad_research/instagram_search.py "$i" /Users/daniel/Desktop/undergrad_research/data/$DATE &
 done
-
-# ./start_instagram.bash /Users/daniel/.bash_profile undergrad /Users/daniel/Desktop/undergrad_research/data
