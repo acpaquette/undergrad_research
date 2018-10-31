@@ -168,6 +168,7 @@ def parse_config(config_file):
     output_file = config['output']['output_file']
 
     keywords = config['keywords']['keywords'].split(',')
+
     try:
         usernames = config['usernames']['usernames'].split(',')
     except:
@@ -196,9 +197,13 @@ def generate_twitter_stream(config_file, start_time):
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_key, access_secret)
 
+    api = tweepy.API(auth)
+
+    user_ids = [str(api.get_user(username).id) for username in usernames]
+
     # Define streamingAPI
     streaming_api = tweepy.streaming.Stream(auth, CustomStreamListener(output_file, start_time))
-    return streaming_api, keywords, usernames
+    return streaming_api, keywords, user_ids
 
 def start_stream(config_file, start_time):
     '''
@@ -209,9 +214,10 @@ def start_stream(config_file, start_time):
     config_file : str
                   Path to a config file
     '''
-    streaming_api, keywords , usernames= generate_twitter_stream(config_file, start_time)
+    streaming_api, keywords , user_ids= generate_twitter_stream(config_file, start_time)
+
     try:
-        result = streaming_api.filter(track = keywords, follow = usernames)
+        result = streaming_api.filter(track = keywords, follow = user_ids)
     except Exception as e:
         print("Stream Failed due to", e)
 
