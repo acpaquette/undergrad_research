@@ -24,7 +24,7 @@ class CustomStreamListener(tweepy.StreamListener):
         bounding_box = []
         quoted_status_id = 0
         retweeted_status = []
-        hashtag = []
+        hashtags = []
         urls = []
         user_mentions = []
         media = []
@@ -54,7 +54,7 @@ class CustomStreamListener(tweepy.StreamListener):
             retweeted_status = status.retweeted_status.id
 
         if 'entities' in status._json.keys() and status._json['entities']['hashtags'] != None:
-            hashtag = status._json['entities']['hashtags']
+            hashtags = [i['text'] for i in status._json['entities']['hashtags']]
 
         if 'entities' in status._json.keys() and status._json['entities']['urls'] != None:
             urls = status._json['entities']['urls']
@@ -77,7 +77,7 @@ class CustomStreamListener(tweepy.StreamListener):
                              status.in_reply_to_user_id, status.user.id, \
                              status.user.name, status.user.screen_name, \
                              coordinates, full_name, bounding_box, \
-                             quoted_status_id, retweeted_status, hashtag, urls, \
+                             quoted_status_id, retweeted_status, hashtags, urls, \
                              user_mentions, media, status.lang])
 
 
