@@ -72,7 +72,7 @@ class CustomStreamListener(tweepy.StreamListener):
         full_text = full_text.encode('utf-8')
         # Writes to csv
         with open(self.output_file, 'a', encoding="utf8") as f:
-            writer = csv.writer(f)
+            writer = csv.writer(f, delimiter='\t')
             writer.writerow([status.id, status.created_at, full_text, \
                              status.in_reply_to_user_id, status.user.id, \
                              status.user.name, status.user.screen_name, \
