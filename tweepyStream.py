@@ -24,7 +24,7 @@ class CustomStreamListener(tweepy.StreamListener):
         bounding_box = []
         quoted_status_id = 0
         retweeted_status = []
-        hashtag = []
+        hashtags = []
         urls = []
         user_mentions = []
         media = []
@@ -54,13 +54,14 @@ class CustomStreamListener(tweepy.StreamListener):
             retweeted_status = status.retweeted_status.id
 
         if 'entities' in status._json.keys() and status._json['entities']['hashtags'] != None:
-            hashtag = status._json['entities']['hashtags']
+            hashtags = [i['text'] for i in status._json['entities']['hashtags']]
 
         if 'entities' in status._json.keys() and status._json['entities']['urls'] != None:
-            urls = status._json['entities']['urls']
+            urls = [i['expanded_url'] for i in status._json['entities']['urls']]
 
         if 'entities' in status._json.keys() and status._json['entities']['user_mentions'] != None:
-            user_mentions = status._json['entities']['user_mentions']
+            user_mentions = [(i['screen_name'], i['id']) for i in status._json['entities']['user_mentions']]
+            user_mentions = dict(user_mentions)
 
         if 'entities' in status._json.keys() and status._json['entities'] != None:
             if 'media' in status._json['entities'].keys():
@@ -72,12 +73,12 @@ class CustomStreamListener(tweepy.StreamListener):
         full_text = full_text.encode('utf-8')
         # Writes to csv
         with open(self.output_file, 'a', encoding="utf8") as f:
-            writer = csv.writer(f)
+            writer = csv.writer(f, delimiter='\t')
             writer.writerow([status.id, status.created_at, full_text, \
                              status.in_reply_to_user_id, status.user.id, \
                              status.user.name, status.user.screen_name, \
                              coordinates, full_name, bounding_box, \
-                             quoted_status_id, retweeted_status, hashtag, urls, \
+                             quoted_status_id, retweeted_status, hashtags, urls, \
                              user_mentions, media, status.lang])
 
 
@@ -168,6 +169,7 @@ def parse_config(config_file):
     output_file = config['output']['output_file']
 
     keywords = config['keywords']['keywords'].split(',')
+
     try:
         usernames = config['usernames']['usernames'].split(',')
     except:
@@ -196,9 +198,13 @@ def generate_twitter_stream(config_file, start_time):
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_key, access_secret)
 
+    api = tweepy.API(auth)
+
+    user_ids = [str(api.get_user(username).id) for username in usernames]
+
     # Define streamingAPI
     streaming_api = tweepy.streaming.Stream(auth, CustomStreamListener(output_file, start_time))
-    return streaming_api, keywords, usernames
+    return streaming_api, keywords, user_ids
 
 def start_stream(config_file, start_time):
     '''
@@ -209,9 +215,10 @@ def start_stream(config_file, start_time):
     config_file : str
                   Path to a config file
     '''
-    streaming_api, keywords , usernames= generate_twitter_stream(config_file, start_time)
+    streaming_api, keywords , user_ids= generate_twitter_stream(config_file, start_time)
+
     try:
-        result = streaming_api.filter(track = keywords, follow = usernames)
+        result = streaming_api.filter(track = keywords, follow = user_ids)
     except Exception as e:
         print("Stream Failed due to", e)
 
