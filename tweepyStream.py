@@ -57,10 +57,11 @@ class CustomStreamListener(tweepy.StreamListener):
             hashtags = [i['text'] for i in status._json['entities']['hashtags']]
 
         if 'entities' in status._json.keys() and status._json['entities']['urls'] != None:
-            urls = status._json['entities']['urls']
+            urls = [i['expanded_url'] for i in status._json['entities']['urls']]
 
         if 'entities' in status._json.keys() and status._json['entities']['user_mentions'] != None:
-            user_mentions = status._json['entities']['user_mentions']
+            user_mentions = [(i['screen_name'], i['id']) for i in status._json['entities']['user_mentions']]
+            user_mentions = dict(user_mentions)
 
         if 'entities' in status._json.keys() and status._json['entities'] != None:
             if 'media' in status._json['entities'].keys():
